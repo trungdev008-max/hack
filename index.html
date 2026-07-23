@@ -35,6 +35,7 @@
             --radius-sm: 10px;
             --admin-color: #ff6b6b;
             --level5: #ff6b6b;
+            --sync-color: #4fc3f7;
         }
 
         * {
@@ -259,6 +260,29 @@
         .balance-badge:hover {
             border-color: var(--gold);
             background: rgba(255, 217, 61, 0.05);
+        }
+
+        .sync-status {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 30px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sync-status.synced {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .sync-status.syncing {
+            border-color: var(--gold);
+            color: var(--gold);
+            animation: pulse 1s infinite;
         }
 
         .tab-nav {
@@ -998,7 +1022,8 @@
         }
 
         .admin-input-group input,
-        .admin-input-group select {
+        .admin-input-group select,
+        .admin-input-group textarea {
             width: 100%;
             padding: 12px 14px;
             border-radius: var(--radius-sm);
@@ -1010,14 +1035,17 @@
             font-weight: 500;
             outline: none;
             transition: all 0.2s;
+            resize: vertical;
         }
 
         .admin-input-group input:focus,
-        .admin-input-group select:focus {
+        .admin-input-group select:focus,
+        .admin-input-group textarea:focus {
             border-color: var(--admin-color);
         }
 
-        .admin-input-group input::placeholder {
+        .admin-input-group input::placeholder,
+        .admin-input-group textarea::placeholder {
             color: var(--text-muted);
             font-weight: 400;
         }
@@ -1133,6 +1161,33 @@
             font-weight: 500;
         }
 
+        .sync-btn {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sync-btn:hover {
+            border-color: var(--sync-color);
+            color: var(--sync-color);
+        }
+
+        .sync-btn.syncing {
+            border-color: var(--gold);
+            color: var(--gold);
+            animation: pulse 1s infinite;
+        }
+
         @media (max-width: 400px) {
             .pkg-grid {
                 grid-template-columns: 1fr 1fr;
@@ -1175,16 +1230,16 @@
     <!-- Login Overlay -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
-            <span class="login-emoji">🤖</span>
+            <span class="login-emoji">☁️</span>
             <h2>Boss Store</h2>
-            <p>Đăng nhập bằng Telegram để mua key và nạp tiền</p>
+            <p>Đăng nhập bằng Telegram để đồng bộ dữ liệu đám mây</p>
             <button class="login-btn-tg" id="loginBtn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/>
                 </svg>
                 Đăng nhập
             </button>
-            <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">🔒 Bảo mật qua Telegram WebApp</div>
+            <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">☁️ Dữ liệu được đồng bộ qua Telegram Cloud</div>
         </div>
     </div>
 
@@ -1208,6 +1263,9 @@
                     <span class="icon">🪙</span>
                     <span id="balanceDisplay">0đ</span>
                 </div>
+                <button class="sync-btn" id="syncBtn" onclick="syncData()" title="Đồng bộ dữ liệu đám mây">
+                    ☁️ Đồng bộ
+                </button>
             </div>
         </div>
 
@@ -1475,6 +1533,7 @@
                     <div class="admin-section-title">👤 QUẢN LÝ ACC FF LV5 <span class="badge-admin">EDIT</span></div>
                     <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
                         Quản lý giá bán và danh sách acc FF LV5 (định dạng mail|mk)
+                        <br>☁️ Dữ liệu được đồng bộ lên Telegram Cloud cho tất cả user
                     </div>
 
                     <div class="admin-input-group">
@@ -1482,17 +1541,17 @@
                         <input type="number" id="adminAccPrice" placeholder="VD: 250000">
                     </div>
                     <button class="btn-primary" onclick="adminUpdateAccPrice()" style="background:var(--accent);">
-                        💰 Cập nhật giá Acc
+                        💰 Cập nhật giá Acc (đồng bộ cloud)
                     </button>
 
                     <div style="margin-top:16px;">
                         <div class="admin-section-title" style="margin-top:0;">📋 DANH SÁCH ACC FF LV5</div>
                         <div class="admin-input-group">
                             <label>Thêm acc mới (mail|mk, mỗi dòng 1 acc)</label>
-                            <textarea id="adminAccListInput" rows="4" style="width:100%;padding:12px;border-radius:var(--radius-sm);border:2px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-family:monospace;font-size:13px;resize:vertical;outline:none;" placeholder="user1@gmail.com|pass123&#10;user2@gmail.com|pass456"></textarea>
+                            <textarea id="adminAccListInput" rows="4" placeholder="user1@gmail.com|pass123&#10;user2@gmail.com|pass456"></textarea>
                         </div>
                         <button class="btn-primary btn-success" onclick="adminAddAccList()">
-                            ➕ Thêm acc vào kho
+                            ➕ Thêm acc vào kho (đồng bộ cloud)
                         </button>
                     </div>
 
@@ -1545,6 +1604,9 @@
                 <!-- Quản lý gói -->
                 <div id="adminManagePackages" style="margin-top:20px;">
                     <div class="admin-section-title">📦 QUẢN LÝ GÓI <span class="badge-admin">EDIT</span></div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
+                        ☁️ Dữ liệu được đồng bộ lên Telegram Cloud cho tất cả user
+                    </div>
 
                     <div class="admin-input-group">
                         <label>Chọn ứng dụng</label>
@@ -1584,7 +1646,7 @@
                             <input type="text" id="adminNewPkgBadge" placeholder="VD: HOT, BEST">
                         </div>
                         <button class="btn-primary" onclick="adminAddPackage()" style="background:var(--accent);">
-                            ➕ Thêm gói
+                            ➕ Thêm gói (đồng bộ cloud)
                         </button>
                     </div>
                 </div>
@@ -1633,6 +1695,88 @@
 
     <script>
         // ============================================================
+        // TELEGRAM CLOUD STORAGE
+        // ============================================================
+        const CLOUD_KEYS = {
+            PACKAGES: 'bossstore_packages',
+            ACC_DATA: 'bossstore_acc_ff_data',
+            FAKE_TRANSACTIONS: 'bossstore_fake_transactions',
+            USERS_DATA: 'bossstore_all_users'
+        };
+
+        let tgCloud = null;
+        let isCloudReady = false;
+
+        function initCloudStorage() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const webApp = window.Telegram.WebApp;
+                    if (webApp.CloudStorage) {
+                        tgCloud = webApp.CloudStorage;
+                        isCloudReady = true;
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.error('Cloud Storage init error:', e);
+                return false;
+            }
+        }
+
+        function cloudSetItem(key, value) {
+            return new Promise((resolve, reject) => {
+                if (!isCloudReady || !tgCloud) {
+                    reject(new Error('Cloud Storage not ready'));
+                    return;
+                }
+                tgCloud.setItem(key, JSON.stringify(value), (error, success) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(success);
+                    }
+                });
+            });
+        }
+
+        function cloudGetItem(key) {
+            return new Promise((resolve, reject) => {
+                if (!isCloudReady || !tgCloud) {
+                    reject(new Error('Cloud Storage not ready'));
+                    return;
+                }
+                tgCloud.getItem(key, (error, value) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        try {
+                            resolve(value ? JSON.parse(value) : null);
+                        } catch (e) {
+                            resolve(value);
+                        }
+                    }
+                });
+            });
+        }
+
+        function cloudRemoveItem(key) {
+            return new Promise((resolve, reject) => {
+                if (!isCloudReady || !tgCloud) {
+                    reject(new Error('Cloud Storage not ready'));
+                    return;
+                }
+                tgCloud.removeItem(key, (error, success) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(success);
+                    }
+                });
+            });
+        }
+
+        // ============================================================
         // DATA
         // ============================================================
         const ADMIN_ID = 8003281912;
@@ -1655,13 +1799,33 @@
             ]
         };
 
-        // Acc FF LV5 data
         let ACC_FF_DATA = {
             price: 250000,
-            accounts: [] // Mỗi acc: { email: 'user@gmail.com', password: 'pass123', sold: false }
+            accounts: []
         };
 
-        // Fake buyer names
+        let fakeTransactions = [];
+        let allUsersData = {};
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let tgUser = null;
+        let isLoggedIn = false;
+        let isAdmin = false;
+        let userBalance = 0;
+        let userKeys = [];
+        let transactions = [];
+        let topupHistory = [];
+        let selectedApp = 'proxy';
+        let selectedPackageIndex = 0;
+        let quantity = 1;
+        let currentQRContent = '';
+        let keyInterval = null;
+        let fakeInterval = null;
+        let accQuantity = 1;
+        let isSyncing = false;
+
         const FAKE_NAMES = [
             'duy pháp', 'anh tuấn', 'minh hoàng', 'bảo long', 'quang huy',
             'minh quân', 'hoàng nam', 'đức anh', 'hải đăng', 'minh đức',
@@ -1676,29 +1840,7 @@
         ];
 
         // ============================================================
-        // STATE
-        // ============================================================
-        let tgUser = null;
-        let isLoggedIn = false;
-        let isAdmin = false;
-        let userBalance = 0;
-        let userKeys = [];
-        let transactions = [];
-        let topupHistory = [];
-        let fakeTransactions = [];
-        let selectedApp = 'proxy';
-        let selectedPackageIndex = 0;
-        let quantity = 1;
-        let currentQRContent = '';
-        let keyInterval = null;
-        let allUsersData = {};
-        let fakeInterval = null;
-
-        // Acc state
-        let accQuantity = 1;
-
-        // ============================================================
-        // TELEGRAM LOGIN - AUTO
+        // TELEGRAM LOGIN
         // ============================================================
         function initTelegramLogin() {
             try {
@@ -1740,34 +1882,68 @@
         }
 
         // ============================================================
-        // SHOW MAIN APP
+        // SYNC FUNCTIONS
         // ============================================================
-        function showMainApp() {
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('bottomNav').style.display = 'flex';
+        async function syncData() {
+            if (!isLoggedIn || !tgUser) {
+                showPopup('⚠️ Vui lòng đăng nhập trước!', 'error');
+                return;
+            }
 
-            if (tgUser) {
-                const name = tgUser.first_name || tgUser.username || 'Boss';
-                document.getElementById('userName').textContent = name;
-                const avatarEl = document.getElementById('userAvatar');
-                avatarEl.textContent = name.charAt(0).toUpperCase();
+            if (isSyncing) {
+                showPopup('⏳ Đang đồng bộ, vui lòng đợi...', 'info');
+                return;
+            }
 
-                if (isAdmin) {
-                    avatarEl.classList.add('admin');
-                    document.getElementById('userName').innerHTML = name +
-                        ' <span class="admin-badge">ADMIN</span>';
-                    document.getElementById('adminTabBtn').classList.remove('hidden');
-                    document.getElementById('adminNavBtn').classList.remove('hidden');
+            const syncBtn = document.getElementById('syncBtn');
+            syncBtn.classList.add('syncing');
+            syncBtn.textContent = '⏳ Đang đồng bộ...';
+            isSyncing = true;
+
+            try {
+                // Đồng bộ dữ liệu từ cloud về local
+                const cloudPackages = await cloudGetItem(CLOUD_KEYS.PACKAGES);
+                if (cloudPackages) {
+                    // Merge với local
+                    for (const app in PACKAGES) {
+                        if (cloudPackages[app]) {
+                            PACKAGES[app] = cloudPackages[app];
+                        }
+                    }
+                    localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
                 }
 
-                const uid = tgUser.id || Math.random().toString(36).slice(2, 8);
-                document.getElementById('userId').textContent = 'ID: ' + uid;
-                currentQRContent = 'NT-' + uid.toString().toUpperCase();
-                document.getElementById('qrContentText').textContent = currentQRContent;
+                const cloudAcc = await cloudGetItem(CLOUD_KEYS.ACC_DATA);
+                if (cloudAcc) {
+                    ACC_FF_DATA = cloudAcc;
+                    localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+                }
 
-                loadData();
-                loadFakeTransactions();
+                const cloudFake = await cloudGetItem(CLOUD_KEYS.FAKE_TRANSACTIONS);
+                if (cloudFake) {
+                    fakeTransactions = cloudFake;
+                    localStorage.setItem('bossstore_fake_transactions', JSON.stringify(fakeTransactions));
+                }
+
+                // Đồng bộ dữ liệu user lên cloud
+                const userData = {
+                    balance: userBalance,
+                    keys: userKeys,
+                    transactions: transactions,
+                    topupHistory: topupHistory
+                };
+                await cloudSetItem('bossstore_user_' + tgUser.id, userData);
+
+                // Nếu là admin, đồng bộ all users
+                if (isAdmin) {
+                    const allUsersRaw = localStorage.getItem('bossstore_all_users');
+                    if (allUsersRaw) {
+                        allUsersData = JSON.parse(allUsersRaw);
+                        await cloudSetItem(CLOUD_KEYS.USERS_DATA, allUsersData);
+                    }
+                }
+
+                // Cập nhật lại giao diện
                 renderPackages();
                 renderAccPackages();
                 updateBalanceDisplay();
@@ -1775,7 +1951,8 @@
                 renderAccRecentTransactions();
                 renderTopupHistory();
                 renderAllHistory();
-                checkKeyExpiry();
+                updateBuyUI();
+                updateAccBuyUI();
 
                 if (isAdmin) {
                     adminLoadPackages();
@@ -1783,26 +1960,102 @@
                     adminLoadUserList();
                 }
 
-                if (keyInterval) clearInterval(keyInterval);
-                keyInterval = setInterval(checkKeyExpiry, 60000);
+                showPopup('☁️ Đồng bộ dữ liệu thành công!', 'success');
 
-                updateBuyUI();
-                updateAccBuyUI();
+            } catch (error) {
+                console.error('Sync error:', error);
+                // Nếu lỗi, thử dùng localStorage
+                showPopup('⚠️ Lỗi đồng bộ! Dữ liệu đã được lưu local.', 'error');
+            }
 
-                startFakeTransactionTimer();
+            syncBtn.classList.remove('syncing');
+            syncBtn.textContent = '☁️ Đồng bộ';
+            isSyncing = false;
+        }
+
+        async function loadCloudData() {
+            if (!isLoggedIn || !tgUser) return;
+
+            try {
+                // Load user data từ cloud
+                const cloudUserData = await cloudGetItem('bossstore_user_' + tgUser.id);
+                if (cloudUserData) {
+                    userBalance = cloudUserData.balance || 0;
+                    userKeys = cloudUserData.keys || [];
+                    transactions = cloudUserData.transactions || [];
+                    topupHistory = cloudUserData.topupHistory || [];
+                    localStorage.setItem('bossstore_' + tgUser.id, JSON.stringify({
+                        balance: userBalance,
+                        keys: userKeys,
+                        transactions: transactions,
+                        topupHistory: topupHistory
+                    }));
+                } else {
+                    // Fallback to local
+                    loadLocalUserData();
+                }
+
+                // Load packages từ cloud
+                const cloudPackages = await cloudGetItem(CLOUD_KEYS.PACKAGES);
+                if (cloudPackages) {
+                    for (const app in PACKAGES) {
+                        if (cloudPackages[app]) {
+                            PACKAGES[app] = cloudPackages[app];
+                        }
+                    }
+                    localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+                } else {
+                    loadLocalPackages();
+                }
+
+                // Load acc data từ cloud
+                const cloudAcc = await cloudGetItem(CLOUD_KEYS.ACC_DATA);
+                if (cloudAcc) {
+                    ACC_FF_DATA = cloudAcc;
+                    localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+                } else {
+                    loadLocalAccData();
+                }
+
+                // Load fake transactions từ cloud
+                const cloudFake = await cloudGetItem(CLOUD_KEYS.FAKE_TRANSACTIONS);
+                if (cloudFake) {
+                    fakeTransactions = cloudFake;
+                    localStorage.setItem('bossstore_fake_transactions', JSON.stringify(fakeTransactions));
+                } else {
+                    loadLocalFakeTransactions();
+                }
+
+                // Load all users nếu là admin
+                if (isAdmin) {
+                    const cloudUsers = await cloudGetItem(CLOUD_KEYS.USERS_DATA);
+                    if (cloudUsers) {
+                        allUsersData = cloudUsers;
+                        localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                    } else {
+                        const localUsers = localStorage.getItem('bossstore_all_users');
+                        if (localUsers) {
+                            allUsersData = JSON.parse(localUsers);
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('Load cloud data error:', error);
+                // Fallback to local
+                loadLocalUserData();
+                loadLocalPackages();
+                loadLocalAccData();
+                loadLocalFakeTransactions();
             }
         }
 
         // ============================================================
-        // STORAGE
+        // LOCAL STORAGE FALLBACK
         // ============================================================
-        function getStorageKey(userId) {
-            return 'bossstore_' + (userId || tgUser?.id || 'guest');
-        }
-
-        function loadData() {
+        function loadLocalUserData() {
             try {
-                const raw = localStorage.getItem(getStorageKey());
+                const raw = localStorage.getItem('bossstore_' + tgUser?.id);
                 if (raw) {
                     const data = JSON.parse(raw);
                     userBalance = data.balance || 0;
@@ -1810,56 +2063,40 @@
                     transactions = data.transactions || [];
                     topupHistory = data.topupHistory || [];
                 }
-
-                // Load acc data
-                const accRaw = localStorage.getItem('bossstore_acc_ff_data');
-                if (accRaw) {
-                    try {
-                        const parsed = JSON.parse(accRaw);
-                        ACC_FF_DATA.price = parsed.price || 250000;
-                        ACC_FF_DATA.accounts = parsed.accounts || [];
-                    } catch (e) {}
-                }
-
-                if (isAdmin) {
-                    const allRaw = localStorage.getItem('bossstore_all_users');
-                    if (allRaw) {
-                        allUsersData = JSON.parse(allRaw);
-                    }
-                }
             } catch (e) {
                 userBalance = 0;
                 userKeys = [];
                 transactions = [];
                 topupHistory = [];
-                allUsersData = {};
             }
         }
 
-        function saveData() {
+        function loadLocalPackages() {
             try {
-                const data = {
-                    balance: userBalance,
-                    keys: userKeys,
-                    transactions: transactions,
-                    topupHistory: topupHistory
-                };
-                localStorage.setItem(getStorageKey(), JSON.stringify(data));
-
-                // Save acc data
-                localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
-
-                if (isAdmin && tgUser) {
-                    allUsersData[tgUser.id] = data;
-                    localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                const saved = localStorage.getItem('bossstore_packages');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    for (const app in PACKAGES) {
+                        if (parsed[app]) {
+                            PACKAGES[app] = parsed[app];
+                        }
+                    }
                 }
             } catch (e) {}
         }
 
-        // ============================================================
-        // FAKE TRANSACTIONS
-        // ============================================================
-        function loadFakeTransactions() {
+        function loadLocalAccData() {
+            try {
+                const raw = localStorage.getItem('bossstore_acc_ff_data');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    ACC_FF_DATA.price = parsed.price || 250000;
+                    ACC_FF_DATA.accounts = parsed.accounts || [];
+                }
+            } catch (e) {}
+        }
+
+        function loadLocalFakeTransactions() {
             try {
                 const raw = localStorage.getItem('bossstore_fake_transactions');
                 if (raw) {
@@ -1893,21 +2130,131 @@
             return fakes;
         }
 
-        function saveFakeTransactions() {
+        // ============================================================
+        // SAVE DATA (with cloud sync)
+        // ============================================================
+        function saveData() {
             try {
-                localStorage.setItem('bossstore_fake_transactions', JSON.stringify(fakeTransactions));
+                const data = {
+                    balance: userBalance,
+                    keys: userKeys,
+                    transactions: transactions,
+                    topupHistory: topupHistory
+                };
+                localStorage.setItem('bossstore_' + tgUser.id, JSON.stringify(data));
+
+                // Sync to cloud (async)
+                if (isLoggedIn && tgUser && isCloudReady) {
+                    cloudSetItem('bossstore_user_' + tgUser.id, data).catch(e => {
+                        console.warn('Cloud sync failed:', e);
+                    });
+                }
+
+                if (isAdmin) {
+                    allUsersData[tgUser.id] = data;
+                    localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                    if (isCloudReady) {
+                        cloudSetItem(CLOUD_KEYS.USERS_DATA, allUsersData).catch(e => {
+                            console.warn('Cloud sync users failed:', e);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Save error:', e);
+            }
+        }
+
+        function savePackages() {
+            try {
+                localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+                if (isCloudReady) {
+                    cloudSetItem(CLOUD_KEYS.PACKAGES, PACKAGES).catch(e => {
+                        console.warn('Cloud sync packages failed:', e);
+                    });
+                }
             } catch (e) {}
         }
 
-        function startFakeTransactionTimer() {
-            if (fakeInterval) clearInterval(fakeInterval);
-            fakeInterval = setInterval(() => {
-                if (isLoggedIn) {
-                    if (Math.random() < 0.25) {
-                        adminAddFakeTransactionAuto();
-                    }
+        function saveAccData() {
+            try {
+                localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+                if (isCloudReady) {
+                    cloudSetItem(CLOUD_KEYS.ACC_DATA, ACC_FF_DATA).catch(e => {
+                        console.warn('Cloud sync acc failed:', e);
+                    });
                 }
-            }, 20000 + Math.random() * 25000);
+            } catch (e) {}
+        }
+
+        function saveFakeTransactions() {
+            try {
+                localStorage.setItem('bossstore_fake_transactions', JSON.stringify(fakeTransactions));
+                if (isCloudReady) {
+                    cloudSetItem(CLOUD_KEYS.FAKE_TRANSACTIONS, fakeTransactions).catch(e => {
+                        console.warn('Cloud sync fake failed:', e);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // ============================================================
+        // SHOW MAIN APP
+        // ============================================================
+        async function showMainApp() {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('bottomNav').style.display = 'flex';
+
+            if (tgUser) {
+                const name = tgUser.first_name || tgUser.username || 'Boss';
+                document.getElementById('userName').textContent = name;
+                const avatarEl = document.getElementById('userAvatar');
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+
+                if (isAdmin) {
+                    avatarEl.classList.add('admin');
+                    document.getElementById('userName').innerHTML = name +
+                        ' <span class="admin-badge">ADMIN</span>';
+                    document.getElementById('adminTabBtn').classList.remove('hidden');
+                    document.getElementById('adminNavBtn').classList.remove('hidden');
+                }
+
+                const uid = tgUser.id || Math.random().toString(36).slice(2, 8);
+                document.getElementById('userId').textContent = 'ID: ' + uid;
+                currentQRContent = 'NT-' + uid.toString().toUpperCase();
+                document.getElementById('qrContentText').textContent = currentQRContent;
+
+                // Load data từ cloud
+                await loadCloudData();
+
+                renderPackages();
+                renderAccPackages();
+                updateBalanceDisplay();
+                renderRecentTransactions();
+                renderAccRecentTransactions();
+                renderTopupHistory();
+                renderAllHistory();
+                checkKeyExpiry();
+
+                if (isAdmin) {
+                    adminLoadPackages();
+                    adminLoadAccList();
+                    adminLoadUserList();
+                }
+
+                if (keyInterval) clearInterval(keyInterval);
+                keyInterval = setInterval(checkKeyExpiry, 60000);
+
+                updateBuyUI();
+                updateAccBuyUI();
+
+                startFakeTransactionTimer();
+
+                // Auto sync after 5 seconds
+                setTimeout(() => {
+                    syncData();
+                }, 5000);
+            }
         }
 
         // ============================================================
@@ -1929,6 +2276,8 @@
             const container = document.getElementById('accGrid');
             const price = ACC_FF_DATA.price;
             const priceStr = price.toLocaleString('vi-VN') + 'đ';
+            const available = ACC_FF_DATA.accounts.filter(a => !a.sold).length;
+            const total = ACC_FF_DATA.accounts.length;
 
             container.innerHTML = `
                 <div class="pkg-card selected" style="grid-column: 1 / -1; border-color: var(--level5);">
@@ -1938,17 +2287,10 @@
                     <div class="pkg-desc">Cấp độ 5 - VIP</div>
                     <div class="pkg-price">${priceStr}</div>
                 </div>
-            `;
-
-            // Hiển thị thông tin acc có sẵn
-            const available = ACC_FF_DATA.accounts.filter(a => !a.sold).length;
-            const total = ACC_FF_DATA.accounts.length;
-            const infoHtml = `
-                <div style="margin-top:8px;text-align:center;font-size:12px;color:var(--text-secondary);">
+                <div style="grid-column:1/-1;text-align:center;font-size:12px;color:var(--text-secondary);">
                     📦 Còn <strong class="text-lv5">${available}</strong> acc có sẵn / Tổng <strong>${total}</strong>
                 </div>
             `;
-            container.insertAdjacentHTML('afterend', infoHtml);
 
             updateAccBuyUI();
         }
@@ -1992,14 +2334,12 @@
                 return;
             }
 
-            // Kiểm tra còn acc không
             const availableAccs = ACC_FF_DATA.accounts.filter(a => !a.sold);
             if (availableAccs.length < accQuantity) {
                 showPopup(`❌ Chỉ còn ${availableAccs.length} acc, bạn đang chọn ${accQuantity}!`, 'error');
                 return;
             }
 
-            // Lấy acc và đánh dấu đã bán
             const boughtAccs = [];
             for (let i = 0; i < accQuantity; i++) {
                 const acc = ACC_FF_DATA.accounts.find(a => !a.sold);
@@ -2011,7 +2351,6 @@
 
             userBalance -= total;
 
-            // Tạo key cho acc
             const keyCode = generateKeyCode();
             userKeys.push({
                 name: `Acc FF LV5 (${accQuantity} acc)`,
@@ -2033,6 +2372,7 @@
             });
 
             saveData();
+            saveAccData();
             updateBalanceDisplay();
             renderRecentTransactions();
             renderAccRecentTransactions();
@@ -2046,7 +2386,6 @@
                 adminLoadAccList();
             }
 
-            // Hiển thị thông tin acc đã mua
             const accInfo = boughtAccs.map((acc, idx) => `📧 Acc ${idx+1}: ${acc}`).join('\n');
             showPopup(`✅ Đã mua ${accQuantity} Acc FF LV5!\n\n${accInfo}`, 'success');
         }
@@ -2408,6 +2747,20 @@
         }
 
         // ============================================================
+        // FAKE TRANSACTION TIMER
+        // ============================================================
+        function startFakeTransactionTimer() {
+            if (fakeInterval) clearInterval(fakeInterval);
+            fakeInterval = setInterval(() => {
+                if (isLoggedIn) {
+                    if (Math.random() < 0.25) {
+                        adminAddFakeTransactionAuto();
+                    }
+                }
+            }, 20000 + Math.random() * 25000);
+        }
+
+        // ============================================================
         // TAB SWITCHING
         // ============================================================
         function switchTab(tab) {
@@ -2474,7 +2827,7 @@
             const bonus = Math.floor(amount * 0.05);
             const total = amount + bonus;
 
-            const key = getStorageKey(userId);
+            const key = 'bossstore_' + userId;
             let userData = null;
             try {
                 const raw = localStorage.getItem(key);
@@ -2496,6 +2849,14 @@
             if (isAdmin) {
                 allUsersData[userId] = userData;
                 localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                if (isCloudReady) {
+                    cloudSetItem(CLOUD_KEYS.USERS_DATA, allUsersData).catch(e => console.warn(e));
+                }
+            }
+
+            // Sync user data lên cloud
+            if (isCloudReady) {
+                cloudSetItem('bossstore_user_' + userId, userData).catch(e => console.warn(e));
             }
 
             if (tgUser && userId === tgUser.id) {
@@ -2524,7 +2885,7 @@
                 return;
             }
 
-            const key = getStorageKey(userId);
+            const key = 'bossstore_' + userId;
             let userData = null;
             try {
                 const raw = localStorage.getItem(key);
@@ -2557,6 +2918,13 @@
             if (isAdmin) {
                 allUsersData[userId] = userData;
                 localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                if (isCloudReady) {
+                    cloudSetItem(CLOUD_KEYS.USERS_DATA, allUsersData).catch(e => console.warn(e));
+                }
+            }
+
+            if (isCloudReady) {
+                cloudSetItem('bossstore_user_' + userId, userData).catch(e => console.warn(e));
             }
 
             if (tgUser && userId === tgUser.id) {
@@ -2590,10 +2958,10 @@
                 return;
             }
 
-            // Hiển thị 10 acc gần nhất
             const showAccounts = accounts.slice(-10).reverse();
             html += `<div style="max-height:300px;overflow-y:auto;">`;
             showAccounts.forEach((acc, idx) => {
+                const realIndex = accounts.indexOf(acc);
                 const status = acc.sold ? '❌ Đã bán' : '✅ Còn';
                 const statusColor = acc.sold ? 'var(--red)' : 'var(--green)';
                 html += `
@@ -2603,8 +2971,8 @@
                             <span class="price">🔑 ${acc.password} • <span style="color:${statusColor};">${status}</span></span>
                         </div>
                         <div class="pkg-actions">
-                            ${!acc.sold ? `<button class="edit-btn" onclick="adminMarkAccSold(${accounts.indexOf(acc)})">✅ Bán</button>` : ''}
-                            <button class="del-btn" onclick="adminDeleteAcc(${accounts.indexOf(acc)})">🗑️</button>
+                            ${!acc.sold ? `<button class="edit-btn" onclick="adminMarkAccSold(${realIndex})">✅ Bán</button>` : ''}
+                            <button class="del-btn" onclick="adminDeleteAcc(${realIndex})">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -2620,9 +2988,10 @@
                 return;
             }
             ACC_FF_DATA.price = price;
-            localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+            saveAccData();
             renderAccPackages();
             updateAccBuyUI();
+            adminLoadAccList();
             showPopup(`✅ Đã cập nhật giá Acc FF LV5: ${price.toLocaleString('vi-VN')}đ`, 'success');
         }
 
@@ -2647,7 +3016,7 @@
                 }
             });
 
-            localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+            saveAccData();
             document.getElementById('adminAccListInput').value = '';
             adminLoadAccList();
             renderAccPackages();
@@ -2658,7 +3027,7 @@
         function adminMarkAccSold(index) {
             if (index >= 0 && index < ACC_FF_DATA.accounts.length) {
                 ACC_FF_DATA.accounts[index].sold = true;
-                localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+                saveAccData();
                 adminLoadAccList();
                 renderAccPackages();
                 updateAccBuyUI();
@@ -2670,7 +3039,7 @@
             if (index >= 0 && index < ACC_FF_DATA.accounts.length) {
                 if (confirm('Xóa acc này?')) {
                     ACC_FF_DATA.accounts.splice(index, 1);
-                    localStorage.setItem('bossstore_acc_ff_data', JSON.stringify(ACC_FF_DATA));
+                    saveAccData();
                     adminLoadAccList();
                     renderAccPackages();
                     updateAccBuyUI();
@@ -2737,7 +3106,7 @@
                 desc: newDays ? newDays + ' ngày' : 'Vĩnh viễn'
             };
 
-            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+            savePackages();
 
             if (app === selectedApp) renderPackages();
             adminLoadPackages();
@@ -2750,7 +3119,7 @@
             const pkgs = PACKAGES[app];
             if (!pkgs || index >= pkgs.length) return;
             pkgs.splice(index, 1);
-            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+            savePackages();
             if (app === selectedApp) {
                 if (selectedPackageIndex >= pkgs.length) selectedPackageIndex = Math.max(0, pkgs.length - 1);
                 renderPackages();
@@ -2783,7 +3152,7 @@
                 desc: days ? days + ' ngày' : 'Vĩnh viễn'
             });
 
-            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+            savePackages();
 
             document.getElementById('adminNewPkgName').value = '';
             document.getElementById('adminNewPkgPrice').value = '';
@@ -2795,20 +3164,6 @@
             adminLoadPackages();
             updateBuyUI();
             showPopup('✅ Đã thêm gói mới!', 'success');
-        }
-
-        function loadPackagesFromStorage() {
-            try {
-                const saved = localStorage.getItem('bossstore_packages');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    for (const app in PACKAGES) {
-                        if (parsed[app]) {
-                            PACKAGES[app] = parsed[app];
-                        }
-                    }
-                }
-            } catch (e) {}
         }
 
         // ============================================================
@@ -2950,19 +3305,8 @@
 
             document.getElementById('customAmount').value = 100000;
 
-            loadPackagesFromStorage();
-
-            try {
-                const accRaw = localStorage.getItem('bossstore_acc_ff_data');
-                if (accRaw) {
-                    const parsed = JSON.parse(accRaw);
-                    ACC_FF_DATA.price = parsed.price || 250000;
-                    ACC_FF_DATA.accounts = parsed.accounts || [];
-                }
-            } catch (e) {}
-
-            // Set admin acc price
-            document.getElementById('adminAccPrice').value = ACC_FF_DATA.price;
+            // Init cloud storage
+            initCloudStorage();
 
             const hasTelegram = initTelegramLogin();
 
@@ -3020,12 +3364,15 @@
                         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/></svg> Đăng nhập';
                 }
             });
+
+            // Set admin acc price
+            document.getElementById('adminAccPrice').value = ACC_FF_DATA.price;
         });
 
         console.log('🛒 Boss Store loaded!');
+        console.log('☁️ Telegram Cloud Storage enabled!');
         console.log('👑 Admin ID: 8003281912');
-        console.log('📌 Admin functions: adminAddBalance(), adminAddKey(), adminAddAccList()');
-        console.log('📌 Demo: adminAddBalance()');
+        console.log('📌 Admin thay đổi giá → tất cả user cập nhật tự động');
     </script>
 
 </body>
