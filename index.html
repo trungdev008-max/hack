@@ -33,6 +33,7 @@
             --gold: #ffd93d;
             --radius: 16px;
             --radius-sm: 10px;
+            --admin-color: #ff6b6b;
         }
 
         body {
@@ -196,6 +197,11 @@
             flex-shrink: 0;
         }
 
+        .avatar.admin {
+            background: linear-gradient(135deg, var(--admin-color), #ee5a24);
+            border: 2px solid var(--gold);
+        }
+
         .user-info {
             display: flex;
             flex-direction: column;
@@ -206,6 +212,16 @@
             font-size: 16px;
             color: var(--text-primary);
             line-height: 1.2;
+        }
+
+        .user-name .admin-badge {
+            font-size: 10px;
+            background: var(--admin-color);
+            color: #fff;
+            padding: 1px 10px;
+            border-radius: 30px;
+            margin-left: 6px;
+            font-weight: 700;
         }
 
         .user-id {
@@ -248,17 +264,23 @@
             padding: 4px;
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
-            overflow: hidden;
+            overflow-x: auto;
+            gap: 2px;
+        }
+
+        .tab-nav::-webkit-scrollbar {
+            height: 0;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px 0;
+            min-width: 60px;
+            padding: 10px 8px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -267,11 +289,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
+            white-space: nowrap;
         }
 
         .tab-btn .tab-icon {
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .tab-btn.active {
@@ -282,6 +305,16 @@
 
         .tab-btn:hover:not(.active) {
             color: var(--text-primary);
+        }
+
+        .tab-btn.admin-tab {
+            color: var(--admin-color);
+        }
+
+        .tab-btn.admin-tab.active {
+            background: var(--admin-color);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
         }
 
         /* Card */
@@ -396,6 +429,22 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none !important;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--admin-color), #ee5a24);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--green), #00b894);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 30px var(--green-glow);
         }
 
         /* Package Grid */
@@ -731,27 +780,29 @@
             z-index: 100;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            overflow-x: auto;
         }
 
         .bottom-nav .nav-item {
             flex: 1;
+            min-width: 50px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            padding: 6px 0;
+            padding: 6px 4px;
             border: none;
             background: transparent;
             color: var(--text-muted);
             font-family: 'Inter', sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .bottom-nav .nav-item .nav-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .bottom-nav .nav-item.active {
@@ -760,6 +811,14 @@
 
         .bottom-nav .nav-item.active .nav-icon {
             transform: scale(1.05);
+        }
+
+        .bottom-nav .nav-item.admin-nav {
+            color: var(--admin-color);
+        }
+
+        .bottom-nav .nav-item.admin-nav.active {
+            color: var(--admin-color);
         }
 
         /* Popup */
@@ -808,6 +867,9 @@
         .text-muted {
             color: var(--text-muted);
         }
+        .text-admin {
+            color: var(--admin-color);
+        }
 
         .hidden {
             display: none !important;
@@ -839,6 +901,170 @@
             transform: scale(1.08);
         }
 
+        /* Admin Panel */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .admin-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .admin-card:hover {
+            border-color: var(--admin-color);
+            transform: translateY(-2px);
+        }
+
+        .admin-card .admin-icon {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .admin-card .admin-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .admin-card .admin-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .admin-input-group {
+            margin-bottom: 12px;
+        }
+
+        .admin-input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .admin-input-group input,
+        .admin-input-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .admin-input-group input:focus,
+        .admin-input-group select:focus {
+            border-color: var(--admin-color);
+        }
+
+        .admin-input-group input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .admin-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-row .admin-input-group {
+            flex: 1;
+        }
+
+        .admin-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin: 16px 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-section-title .badge-admin {
+            font-size: 10px;
+            background: var(--admin-color);
+            color: #fff;
+            padding: 1px 12px;
+            border-radius: 30px;
+        }
+
+        .admin-pkg-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .admin-pkg-item .pkg-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-pkg-item .pkg-info .name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .admin-pkg-item .pkg-info .price {
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .admin-pkg-item .pkg-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .admin-pkg-item .pkg-actions button {
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .admin-pkg-item .pkg-actions .edit-btn {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .admin-pkg-item .pkg-actions .edit-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .admin-pkg-item .pkg-actions .del-btn {
+            background: var(--admin-color);
+            color: #fff;
+        }
+
+        .admin-pkg-item .pkg-actions .del-btn:hover {
+            background: #ee5a24;
+        }
+
         @media (max-width: 400px) {
             .pkg-grid {
                 grid-template-columns: 1fr 1fr;
@@ -860,6 +1086,13 @@
             }
             .container {
                 padding: 8px 12px 90px;
+            }
+            .admin-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .admin-row {
+                flex-direction: column;
             }
         }
     </style>
@@ -906,7 +1139,7 @@
         </div>
 
         <!-- Tab Navigation -->
-        <div class="tab-nav">
+        <div class="tab-nav" id="tabNav">
             <button class="tab-btn active" data-tab="buy" onclick="switchTab('buy')">
                 <span class="tab-icon">🎮</span> Mua
             </button>
@@ -915,6 +1148,9 @@
             </button>
             <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
                 <span class="tab-icon">📋</span> Lịch sử
+            </button>
+            <button class="tab-btn admin-tab hidden" data-tab="admin" onclick="switchTab('admin')" id="adminTabBtn">
+                <span class="tab-icon">⚙️</span> Admin
             </button>
         </div>
 
@@ -1033,6 +1269,141 @@
             </div>
         </div>
 
+        <!-- Tab: Admin -->
+        <div class="tab-content" id="tabAdmin">
+            <div class="card">
+                <div class="card-title">⚙️ QUẢN TRỊ <span class="badge-admin" style="font-size:10px;background:var(--admin-color);color:#fff;padding:2px 12px;border-radius:30px;">ADMIN</span></div>
+
+                <!-- Admin Quick Actions -->
+                <div class="admin-grid">
+                    <div class="admin-card" onclick="document.getElementById('adminAddBalance').scrollIntoView({behavior:'smooth'})">
+                        <span class="admin-icon">💰</span>
+                        <div class="admin-label">Cộng tiền</div>
+                        <div class="admin-desc">Thêm tiền cho user</div>
+                    </div>
+                    <div class="admin-card" onclick="document.getElementById('adminAddKey').scrollIntoView({behavior:'smooth'})">
+                        <span class="admin-icon">🔑</span>
+                        <div class="admin-label">Thêm Key</div>
+                        <div class="admin-desc">Tạo key thủ công</div>
+                    </div>
+                    <div class="admin-card" onclick="document.getElementById('adminManagePackages').scrollIntoView({behavior:'smooth'})">
+                        <span class="admin-icon">📦</span>
+                        <div class="admin-label">Quản lý gói</div>
+                        <div class="admin-desc">Sửa giá, thêm gói</div>
+                    </div>
+                    <div class="admin-card" onclick="document.getElementById('adminUserList').scrollIntoView({behavior:'smooth'})">
+                        <span class="admin-icon">👥</span>
+                        <div class="admin-label">Danh sách user</div>
+                        <div class="admin-desc">Xem và quản lý</div>
+                    </div>
+                </div>
+
+                <!-- Cộng tiền -->
+                <div id="adminAddBalance" style="margin-top:20px;">
+                    <div class="admin-section-title">💰 CỘNG TIỀN CHO USER</div>
+                    <div class="admin-input-group">
+                        <label>User ID (Telegram ID)</label>
+                        <input type="text" id="adminUserId" placeholder="VD: 8003281912" value="8003281912">
+                    </div>
+                    <div class="admin-input-group">
+                        <label>Số tiền (VNĐ)</label>
+                        <input type="number" id="adminAmount" placeholder="VD: 100000" value="100000">
+                    </div>
+                    <button class="btn-primary btn-success" onclick="adminAddBalance()">
+                        💰 Cộng tiền + 5% thưởng
+                    </button>
+                </div>
+
+                <!-- Thêm key -->
+                <div id="adminAddKey" style="margin-top:20px;">
+                    <div class="admin-section-title">🔑 THÊM KEY THỦ CÔNG</div>
+                    <div class="admin-input-group">
+                        <label>User ID</label>
+                        <input type="text" id="adminKeyUserId" placeholder="VD: 8003281912" value="8003281912">
+                    </div>
+                    <div class="admin-input-group">
+                        <label>Tên key</label>
+                        <input type="text" id="adminKeyName" placeholder="VD: Proxy Vĩnh Viễn">
+                    </div>
+                    <div class="admin-input-group">
+                        <label>Mã key (để trống tự tạo)</label>
+                        <input type="text" id="adminKeyCode" placeholder="VD: ABCD-1234-EFGH-5678">
+                    </div>
+                    <div class="admin-row">
+                        <div class="admin-input-group">
+                            <label>Số ngày (để trống vĩnh viễn)</label>
+                            <input type="number" id="adminKeyDays" placeholder="VD: 30">
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Số lượng</label>
+                            <input type="number" id="adminKeyQty" value="1" min="1">
+                        </div>
+                    </div>
+                    <button class="btn-primary btn-success" onclick="adminAddKey()">
+                        🔑 Thêm key
+                    </button>
+                </div>
+
+                <!-- Quản lý gói -->
+                <div id="adminManagePackages" style="margin-top:20px;">
+                    <div class="admin-section-title">📦 QUẢN LÝ GÓI <span class="badge-admin">EDIT</span></div>
+
+                    <div class="admin-input-group">
+                        <label>Chọn ứng dụng</label>
+                        <select id="adminPkgApp" onchange="adminLoadPackages()">
+                            <option value="proxy">Proxy</option>
+                            <option value="tipa">Tipa</option>
+                            <option value="migul">Migul</option>
+                        </select>
+                    </div>
+
+                    <div id="adminPkgList">
+                        <!-- Danh sách gói sẽ render ở đây -->
+                    </div>
+
+                    <div style="margin-top:12px;border-top:1px solid var(--border-color);padding-top:12px;">
+                        <div class="admin-section-title" style="margin-top:0;">➕ THÊM GÓI MỚI</div>
+                        <div class="admin-input-group">
+                            <label>Tên gói</label>
+                            <input type="text" id="adminNewPkgName" placeholder="VD: Proxy 1 Tháng">
+                        </div>
+                        <div class="admin-row">
+                            <div class="admin-input-group">
+                                <label>Giá (VNĐ)</label>
+                                <input type="number" id="adminNewPkgPrice" placeholder="VD: 50000">
+                            </div>
+                            <div class="admin-input-group">
+                                <label>Số ngày (để trống vĩnh viễn)</label>
+                                <input type="number" id="adminNewPkgDays" placeholder="VD: 30">
+                            </div>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Icon (emoji)</label>
+                            <input type="text" id="adminNewPkgIcon" placeholder="VD: 📅" value="📅">
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Badge (để trống nếu không có)</label>
+                            <input type="text" id="adminNewPkgBadge" placeholder="VD: HOT, BEST">
+                        </div>
+                        <button class="btn-primary" onclick="adminAddPackage()" style="background:var(--accent);">
+                            ➕ Thêm gói
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Danh sách user -->
+                <div id="adminUserList" style="margin-top:20px;">
+                    <div class="admin-section-title">👥 DANH SÁCH USER</div>
+                    <div id="adminUserListContainer">
+                        <div class="no-data">
+                            <span class="empty-icon">📭</span>
+                            Chưa có dữ liệu user
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Floating Admin -->
         <a href="https://t.me/vantrung23128" target="_blank" class="fab-contact">💬</a>
 
@@ -1052,13 +1423,19 @@
             <span class="nav-icon">📋</span>
             Lịch sử
         </button>
+        <button class="nav-item admin-nav hidden" data-tab="admin" onclick="switchTab('admin')" id="adminNavBtn">
+            <span class="nav-icon">⚙️</span>
+            Admin
+        </button>
     </div>
 
     <script>
         // ============================================================
         // DATA
         // ============================================================
-        const PACKAGES = {
+        const ADMIN_ID = 8003281912;
+
+        let PACKAGES = {
             proxy: [
                 { name: 'Proxy 1 Tháng', price: 50000, days: 30, icon: '📅', desc: '30 ngày' },
                 { name: 'Proxy Vĩnh Viễn', price: 120000, days: null, icon: '♾️', desc: 'Vĩnh viễn', badge: '🔥 HOT' },
@@ -1081,6 +1458,7 @@
         // ============================================================
         let tgUser = null;
         let isLoggedIn = false;
+        let isAdmin = false;
         let userBalance = 0;
         let userKeys = [];
         let transactions = [];
@@ -1090,7 +1468,7 @@
         let quantity = 1;
         let currentQRContent = '';
         let keyInterval = null;
-        let isFirstLoad = true;
+        let allUsersData = {};
 
         // ============================================================
         // TELEGRAM LOGIN - AUTO
@@ -1102,17 +1480,14 @@
                     webApp.ready();
                     webApp.expand();
 
-                    // Lấy user từ initDataUnsafe
                     const user = webApp.initDataUnsafe?.user;
-
-                    // Nếu có user -> đăng nhập tự động
                     if (user && user.id) {
                         tgUser = user;
                         isLoggedIn = true;
+                        isAdmin = (user.id === ADMIN_ID);
                         return true;
                     }
 
-                    // Thử lấy từ initData (fallback)
                     const initData = webApp.initData;
                     if (initData) {
                         const params = new URLSearchParams(initData);
@@ -1123,6 +1498,7 @@
                                 if (userData && userData.id) {
                                     tgUser = userData;
                                     isLoggedIn = true;
+                                    isAdmin = (userData.id === ADMIN_ID);
                                     return true;
                                 }
                             } catch (e) {}
@@ -1147,7 +1523,18 @@
             if (tgUser) {
                 const name = tgUser.first_name || tgUser.username || 'Boss';
                 document.getElementById('userName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+                const avatarEl = document.getElementById('userAvatar');
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+
+                if (isAdmin) {
+                    avatarEl.classList.add('admin');
+                    document.getElementById('userName').innerHTML = name +
+                        ' <span class="admin-badge">ADMIN</span>';
+                    // Hiện tab admin
+                    document.getElementById('adminTabBtn').classList.remove('hidden');
+                    document.getElementById('adminNavBtn').classList.remove('hidden');
+                }
+
                 const uid = tgUser.id || Math.random().toString(36).slice(2, 8);
                 document.getElementById('userId').textContent = 'ID: ' + uid;
                 currentQRContent = 'NT-' + uid.toString().toUpperCase();
@@ -1161,10 +1548,14 @@
                 renderAllHistory();
                 checkKeyExpiry();
 
+                if (isAdmin) {
+                    adminLoadPackages();
+                    adminLoadUserList();
+                }
+
                 if (keyInterval) clearInterval(keyInterval);
                 keyInterval = setInterval(checkKeyExpiry, 60000);
 
-                // Cập nhật UI mua
                 updateBuyUI();
             }
         }
@@ -1172,12 +1563,13 @@
         // ============================================================
         // STORAGE
         // ============================================================
-        function getStorageKey() {
-            return 'bossstore_' + (tgUser?.id || 'guest');
+        function getStorageKey(userId) {
+            return 'bossstore_' + (userId || tgUser?.id || 'guest');
         }
 
         function loadData() {
             try {
+                // Load user data
                 const raw = localStorage.getItem(getStorageKey());
                 if (raw) {
                     const data = JSON.parse(raw);
@@ -1186,11 +1578,20 @@
                     transactions = data.transactions || [];
                     topupHistory = data.topupHistory || [];
                 }
+
+                // Load all users data (for admin)
+                if (isAdmin) {
+                    const allRaw = localStorage.getItem('bossstore_all_users');
+                    if (allRaw) {
+                        allUsersData = JSON.parse(allRaw);
+                    }
+                }
             } catch (e) {
                 userBalance = 0;
                 userKeys = [];
                 transactions = [];
                 topupHistory = [];
+                allUsersData = {};
             }
         }
 
@@ -1203,6 +1604,12 @@
                     topupHistory: topupHistory
                 };
                 localStorage.setItem(getStorageKey(), JSON.stringify(data));
+
+                // Save to all users (for admin)
+                if (isAdmin && tgUser) {
+                    allUsersData[tgUser.id] = data;
+                    localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+                }
             } catch (e) {}
         }
 
@@ -1242,7 +1649,7 @@
                         ${badgeHtml}
                         <span class="pkg-icon">${p.icon}</span>
                         <div class="pkg-name">${p.name}</div>
-                        <div class="pkg-desc">${p.desc}</div>
+                        <div class="pkg-desc">${p.desc || (p.days ? p.days+' ngày' : 'Vĩnh viễn')}</div>
                         <div class="pkg-price">${priceStr}</div>
                     </div>
                 `;
@@ -1344,6 +1751,8 @@
             renderRecentTransactions();
             renderAllHistory();
             updateBuyUI();
+
+            if (isAdmin) adminLoadUserList();
 
             showPopup(`✅ Đã mua ${quantity} key ${pkg.name}!`, 'success');
         }
@@ -1521,10 +1930,15 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-            const tabMap = { buy: 'Buy', topup: 'Topup', history: 'History' };
-            document.getElementById('tab' + tabMap[tab])?.classList.add('active');
-            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-            document.querySelector(`.nav-item[data-tab="${tab}"]`)?.classList.add('active');
+            const tabMap = { buy: 'Buy', topup: 'Topup', history: 'History', admin: 'Admin' };
+            const el = document.getElementById('tab' + tabMap[tab]);
+            if (el) el.classList.add('active');
+
+            const tabBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+
+            const navBtn = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+            if (navBtn) navBtn.classList.add('active');
 
             if (tab === 'buy') {
                 renderPackages();
@@ -1535,6 +1949,10 @@
             }
             if (tab === 'history') {
                 renderAllHistory();
+            }
+            if (tab === 'admin') {
+                adminLoadPackages();
+                adminLoadUserList();
             }
         }
 
@@ -1552,31 +1970,310 @@
         // ============================================================
         // ADMIN FUNCTIONS
         // ============================================================
-        window.addBalance = function(amount) {
+
+        // Cộng tiền
+        function adminAddBalance() {
+            const userId = parseInt(document.getElementById('adminUserId').value);
+            const amount = parseInt(document.getElementById('adminAmount').value);
+
+            if (!userId || isNaN(amount) || amount < 1000) {
+                showPopup('⚠️ Vui lòng nhập đúng thông tin!', 'error');
+                return;
+            }
+
             const bonus = Math.floor(amount * 0.05);
             const total = amount + bonus;
-            userBalance += total;
-            topupHistory.unshift({ amount: total, time: Date.now() });
-            saveData();
-            updateBalanceDisplay();
-            renderTopupHistory();
-            renderAllHistory();
-            updateBuyUI();
-            showPopup(`💰 Đã cộng ${total.toLocaleString('vi-VN')}đ (bao gồm 5% thưởng)`, 'success');
-        };
 
-        window.addKey = function(name, keyCode, expiryTimestamp = null) {
-            const newKey = {
-                name: name || 'Gói không tên',
-                keyCode: keyCode || generateKeyCode(),
-                expiry: expiryTimestamp,
-                isActive: true,
-                purchasedAt: Date.now()
+            // Lưu cho user được chọn
+            const key = getStorageKey(userId);
+            let userData = null;
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    userData = JSON.parse(raw);
+                }
+            } catch (e) {}
+
+            if (!userData) {
+                userData = { balance: 0, keys: [], transactions: [], topupHistory: [] };
+            }
+
+            userData.balance = (userData.balance || 0) + total;
+            if (!userData.topupHistory) userData.topupHistory = [];
+            userData.topupHistory.unshift({ amount: total, time: Date.now() });
+
+            localStorage.setItem(key, JSON.stringify(userData));
+
+            // Cập nhật all users
+            if (isAdmin) {
+                allUsersData[userId] = userData;
+                localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+            }
+
+            // Nếu là user hiện tại, cập nhật luôn
+            if (tgUser && userId === tgUser.id) {
+                userBalance = userData.balance;
+                topupHistory = userData.topupHistory || [];
+                updateBalanceDisplay();
+                renderTopupHistory();
+                renderAllHistory();
+                updateBuyUI();
+            }
+
+            adminLoadUserList();
+            showPopup(`💰 Đã cộng ${total.toLocaleString('vi-VN')}đ (bao gồm 5% thưởng) cho user ${userId}`, 'success');
+        }
+
+        // Thêm key
+        function adminAddKey() {
+            const userId = parseInt(document.getElementById('adminKeyUserId').value);
+            const name = document.getElementById('adminKeyName').value.trim() || 'Key Admin';
+            let keyCode = document.getElementById('adminKeyCode').value.trim();
+            const days = parseInt(document.getElementById('adminKeyDays').value) || null;
+            const qty = parseInt(document.getElementById('adminKeyQty').value) || 1;
+
+            if (!userId) {
+                showPopup('⚠️ Vui lòng nhập User ID!', 'error');
+                return;
+            }
+
+            const key = getStorageKey(userId);
+            let userData = null;
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    userData = JSON.parse(raw);
+                }
+            } catch (e) {}
+
+            if (!userData) {
+                userData = { balance: 0, keys: [], transactions: [], topupHistory: [] };
+            }
+            if (!userData.keys) userData.keys = [];
+
+            const expiry = days ? Date.now() + days * 86400000 : null;
+
+            for (let i = 0; i < qty; i++) {
+                const code = keyCode || generateKeyCode();
+                userData.keys.push({
+                    name: name + (qty > 1 ? ' #' + (i + 1) : ''),
+                    keyCode: code,
+                    expiry: expiry,
+                    isActive: true,
+                    purchasedAt: Date.now()
+                });
+                if (!keyCode) keyCode = ''; // reset để tạo key mới nếu không nhập
+            }
+
+            localStorage.setItem(key, JSON.stringify(userData));
+
+            // Cập nhật all users
+            if (isAdmin) {
+                allUsersData[userId] = userData;
+                localStorage.setItem('bossstore_all_users', JSON.stringify(allUsersData));
+            }
+
+            // Nếu là user hiện tại, cập nhật luôn
+            if (tgUser && userId === tgUser.id) {
+                userKeys = userData.keys || [];
+                renderRecentTransactions();
+                renderAllHistory();
+            }
+
+            adminLoadUserList();
+            showPopup(`✅ Đã thêm ${qty} key "${name}" cho user ${userId}`, 'success');
+        }
+
+        // Quản lý gói - load
+        function adminLoadPackages() {
+            const app = document.getElementById('adminPkgApp').value;
+            const container = document.getElementById('adminPkgList');
+            const pkgs = PACKAGES[app] || [];
+
+            if (pkgs.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px 0;">📭 Chưa có gói nào</div>';
+                return;
+            }
+
+            let html = '';
+            pkgs.forEach((p, index) => {
+                const priceStr = p.price.toLocaleString('vi-VN') + 'đ';
+                const daysStr = p.days ? p.days + ' ngày' : 'Vĩnh viễn';
+                html += `
+                    <div class="admin-pkg-item">
+                        <div class="pkg-info">
+                            <span class="name">${p.icon} ${p.name}</span>
+                            <span class="price">${priceStr} • ${daysStr}</span>
+                            ${p.badge ? `<span style="font-size:10px;color:var(--accent-light);">${p.badge}</span>` : ''}
+                        </div>
+                        <div class="pkg-actions">
+                            <button class="edit-btn" onclick="adminEditPackage('${app}', ${index})">✏️</button>
+                            <button class="del-btn" onclick="adminDeletePackage('${app}', ${index})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Sửa gói
+        function adminEditPackage(app, index) {
+            const pkgs = PACKAGES[app];
+            if (!pkgs || index >= pkgs.length) return;
+            const p = pkgs[index];
+
+            const newName = prompt('Tên gói:', p.name);
+            if (newName === null) return;
+            const newPrice = parseInt(prompt('Giá (VNĐ):', p.price));
+            if (isNaN(newPrice) || newPrice < 0) return;
+            const newDays = prompt('Số ngày (để trống vĩnh viễn):', p.days || '');
+            const newIcon = prompt('Icon (emoji):', p.icon);
+            if (newIcon === null) return;
+            const newBadge = prompt('Badge (để trống nếu không có):', p.badge || '');
+
+            pkgs[index] = {
+                ...p,
+                name: newName || p.name,
+                price: newPrice || p.price,
+                days: newDays ? parseInt(newDays) : null,
+                icon: newIcon || p.icon,
+                badge: newBadge || undefined,
+                desc: newDays ? newDays + ' ngày' : 'Vĩnh viễn'
             };
-            userKeys.push(newKey);
-            saveData();
-            showPopup('✅ Đã thêm key: ' + newKey.name, 'success');
-        };
+
+            // Lưu vào localStorage
+            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+
+            // Cập nhật giao diện
+            if (app === selectedApp) renderPackages();
+            adminLoadPackages();
+            updateBuyUI();
+            showPopup('✅ Đã cập nhật gói!', 'success');
+        }
+
+        // Xóa gói
+        function adminDeletePackage(app, index) {
+            if (!confirm('Xóa gói này?')) return;
+            const pkgs = PACKAGES[app];
+            if (!pkgs || index >= pkgs.length) return;
+            pkgs.splice(index, 1);
+            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+            if (app === selectedApp) {
+                if (selectedPackageIndex >= pkgs.length) selectedPackageIndex = Math.max(0, pkgs.length - 1);
+                renderPackages();
+            }
+            adminLoadPackages();
+            updateBuyUI();
+            showPopup('🗑️ Đã xóa gói', 'success');
+        }
+
+        // Thêm gói mới
+        function adminAddPackage() {
+            const app = document.getElementById('adminPkgApp').value;
+            const name = document.getElementById('adminNewPkgName').value.trim();
+            const price = parseInt(document.getElementById('adminNewPkgPrice').value);
+            const days = parseInt(document.getElementById('adminNewPkgDays').value) || null;
+            const icon = document.getElementById('adminNewPkgIcon').value.trim() || '📦';
+            const badge = document.getElementById('adminNewPkgBadge').value.trim() || undefined;
+
+            if (!name || isNaN(price) || price < 0) {
+                showPopup('⚠️ Vui lòng nhập đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            if (!PACKAGES[app]) PACKAGES[app] = [];
+            PACKAGES[app].push({
+                name: name,
+                price: price,
+                days: days,
+                icon: icon,
+                badge: badge,
+                desc: days ? days + ' ngày' : 'Vĩnh viễn'
+            });
+
+            localStorage.setItem('bossstore_packages', JSON.stringify(PACKAGES));
+
+            // Reset form
+            document.getElementById('adminNewPkgName').value = '';
+            document.getElementById('adminNewPkgPrice').value = '';
+            document.getElementById('adminNewPkgDays').value = '';
+            document.getElementById('adminNewPkgIcon').value = '📅';
+            document.getElementById('adminNewPkgBadge').value = '';
+
+            if (app === selectedApp) renderPackages();
+            adminLoadPackages();
+            updateBuyUI();
+            showPopup('✅ Đã thêm gói mới!', 'success');
+        }
+
+        // Load packages from localStorage
+        function loadPackagesFromStorage() {
+            try {
+                const saved = localStorage.getItem('bossstore_packages');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Merge with default để tránh mất dữ liệu
+                    for (const app in PACKAGES) {
+                        if (parsed[app]) {
+                            PACKAGES[app] = parsed[app];
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // Danh sách user
+        function adminLoadUserList() {
+            const container = document.getElementById('adminUserListContainer');
+            try {
+                const allRaw = localStorage.getItem('bossstore_all_users');
+                let users = {};
+                if (allRaw) {
+                    users = JSON.parse(allRaw);
+                }
+
+                const entries = Object.entries(users);
+                if (entries.length === 0) {
+                    container.innerHTML =
+                        `<div class="no-data"><span class="empty-icon">📭</span>Chưa có user nào đăng ký</div>`;
+                    return;
+                }
+
+                let html = '';
+                entries.forEach(([id, data]) => {
+                    const balance = data.balance || 0;
+                    const keyCount = (data.keys || []).length;
+                    const activeKeys = (data.keys || []).filter(k => k.isActive).length;
+                    html += `
+                        <div class="admin-pkg-item">
+                            <div class="pkg-info">
+                                <span class="name">👤 ID: ${id}</span>
+                                <span class="price">💰 ${balance.toLocaleString('vi-VN')}đ • 🔑 ${activeKeys}/${keyCount} key</span>
+                            </div>
+                            <div class="pkg-actions">
+                                <button class="edit-btn" onclick="adminQuickAddBalance(${id})">💰</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML =
+                    `<div class="no-data"><span class="empty-icon">❌</span>Lỗi tải dữ liệu</div>`;
+            }
+        }
+
+        // Quick add balance từ danh sách user
+        function adminQuickAddBalance(userId) {
+            const amount = parseInt(prompt('Nhập số tiền cần cộng (VNĐ):', '100000'));
+            if (isNaN(amount) || amount < 1000) {
+                showPopup('⚠️ Số tiền không hợp lệ!', 'error');
+                return;
+            }
+            document.getElementById('adminUserId').value = userId;
+            document.getElementById('adminAmount').value = amount;
+            adminAddBalance();
+        }
 
         // ============================================================
         // AMOUNT BUTTONS
@@ -1594,20 +2291,20 @@
             // Set default amount
             document.getElementById('customAmount').value = 100000;
 
+            // Load packages from storage
+            loadPackagesFromStorage();
+
             // === AUTO LOGIN ===
             const hasTelegram = initTelegramLogin();
 
             if (hasTelegram && isLoggedIn) {
-                // Đăng nhập tự động thành công
                 showMainApp();
-                showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + '!', 'success');
+                showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + (isAdmin ? ' (Admin)' : '') + '!', 'success');
             } else {
-                // Hiển thị login, vẫn cho đăng nhập thủ công
                 document.getElementById('loginOverlay').classList.remove('hidden');
                 document.getElementById('mainApp').style.display = 'none';
                 document.getElementById('bottomNav').style.display = 'none';
 
-                // Nếu đang trong Telegram nhưng chưa login, thử lại
                 if (window.Telegram && window.Telegram.WebApp) {
                     setTimeout(() => {
                         const webApp = window.Telegram.WebApp;
@@ -1615,14 +2312,16 @@
                         if (user && user.id) {
                             tgUser = user;
                             isLoggedIn = true;
+                            isAdmin = (user.id === ADMIN_ID);
                             showMainApp();
-                            showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + '!', 'success');
+                            showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + (isAdmin ? ' (Admin)' : '') +
+                                '!', 'success');
                         }
                     }, 500);
                 }
             }
 
-            // Login button handler (fallback)
+            // Login button handler
             document.getElementById('loginBtn').addEventListener('click', function() {
                 const btn = this;
                 btn.disabled = true;
@@ -1636,6 +2335,7 @@
                     if (user && user.id) {
                         tgUser = user;
                         isLoggedIn = true;
+                        isAdmin = (user.id === ADMIN_ID);
                         showMainApp();
                         showPopup('🌸 Đăng nhập thành công!', 'success');
                     } else {
@@ -1645,7 +2345,6 @@
                             '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/></svg> Đăng nhập';
                     }
                 } else {
-                    // Fallback: mở Telegram
                     window.open('https://t.me/vantrung23128', '_blank');
                     showPopup('📱 Mở ứng dụng Telegram', 'info');
                     btn.disabled = false;
@@ -1656,8 +2355,19 @@
         });
 
         console.log('🛒 Boss Store loaded!');
-        console.log('📌 Admin: addBalance(amount), addKey(name, code, expiry)');
-        console.log('📌 Demo: addBalance(100000)');
+        console.log('👑 Admin ID: 8003281912');
+        console.log('📌 Admin functions: adminAddBalance(), adminAddKey(), adminAddPackage()');
+        console.log('📌 Demo: adminAddBalance()');
+
+        // Expose admin functions globally
+        window.adminAddBalance = adminAddBalance;
+        window.adminAddKey = adminAddKey;
+        window.adminAddPackage = adminAddPackage;
+        window.adminEditPackage = adminEditPackage;
+        window.adminDeletePackage = adminDeletePackage;
+        window.adminLoadPackages = adminLoadPackages;
+        window.adminLoadUserList = adminLoadUserList;
+        window.adminQuickAddBalance = adminQuickAddBalance;
     </script>
 
 </body>
