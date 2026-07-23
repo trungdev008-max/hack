@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Boss Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: #13131a;
+            --bg-card-hover: #1a1a24;
+            --bg-input: #1a1a24;
+            --border-color: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #8a8aa0;
+            --text-muted: #5a5a70;
+            --accent: #6c5ce7;
+            --accent-light: #7c6cf0;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --green: #00d4aa;
+            --green-glow: rgba(0, 212, 170, 0.2);
+            --red: #ff6b6b;
+            --gold: #ffd93d;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 12px 16px 100px;
+        }
+
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 40px 28px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-box .login-emoji {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .login-box h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .login-box p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .login-btn-tg {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #0088cc, #0099e6);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 20px rgba(0, 136, 204, 0.3);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .login-btn-tg:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 136, 204, 0.4);
+        }
+
+        .login-btn-tg:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .login-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .balance-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 6px 14px 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .balance-badge:hover {
+            border-color: var(--gold);
+            background: rgba(255, 217, 61, 0.05);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn .tab-icon {
+            font-size: 16px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Topup */
+        .topup-amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .topup-amt-btn {
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .topup-amt-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .topup-amt-btn.active {
+            border-color: var(--accent);
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--accent-light);
+        }
+
+        .topup-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .topup-input {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .topup-input:focus {
+            border-color: var(--accent);
+        }
+
+        .topup-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Package Grid */
+        .pkg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .pkg-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.25s;
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+        }
+
+        .pkg-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            background: var(--bg-card-hover);
+        }
+
+        .pkg-card .pkg-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .pkg-card .pkg-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .pkg-card .pkg-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .pkg-card .pkg-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .pkg-card .pkg-price small {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .pkg-card .pkg-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pkg-card .pkg-badge.hot {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .pkg-card .pkg-badge.best {
+            background: linear-gradient(135deg, var(--gold), #f0932b);
+        }
+
+        .pkg-card.selected {
+            border-color: var(--accent);
+            background: rgba(108, 92, 231, 0.08);
+        }
+
+        /* App Select */
+        .app-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .app-select::-webkit-scrollbar {
+            height: 2px;
+        }
+        .app-select::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .app-select::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .app-option {
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .app-option:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .app-option.active {
+            border-color: var(--accent);
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--accent-light);
+        }
+
+        /* Quantity */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            margin: 12px 0;
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .qty-btn:hover {
+            border-color: var(--accent);
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        .qty-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            min-width: 30px;
+            text-align: center;
+        }
+
+        /* QR */
+        .qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .qr-box {
+            background: #fff;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg-input);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .qr-content:hover {
+            border-color: var(--accent);
+        }
+
+        .bank-info {
+            text-align: center;
+            margin: 8px 0 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .bank-info strong {
+            color: var(--text-primary);
+        }
+
+        .topup-note {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--border-color);
+            line-height: 1.5;
+        }
+
+        .topup-note strong {
+            color: var(--accent-light);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .no-data .empty-icon {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* History */
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .history-info .h-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .history-info .h-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .history-amount {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--green);
+        }
+
+        .history-amount.negative {
+            color: var(--red);
+        }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            padding: 6px 0 env(safe-area-inset-bottom, 6px);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .bottom-nav .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 0;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bottom-nav .nav-item .nav-icon {
+            font-size: 20px;
+        }
+
+        .bottom-nav .nav-item.active {
+            color: var(--accent-light);
+        }
+
+        .bottom-nav .nav-item.active .nav-icon {
+            transform: scale(1.05);
+        }
+
+        /* Popup */
+        .popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 99999;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s cubic-bezier(.34, 1.56, .64, 1), opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(20px);
+        }
+
+        .popup.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .popup.error {
+            border-color: var(--red);
+        }
+
+        .popup.success {
+            border-color: var(--green);
+        }
+
+        .text-gold {
+            color: var(--gold);
+        }
+        .text-accent {
+            color: var(--accent-light);
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Floating contact */
+        .fab-contact {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            color: #fff;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            z-index: 50;
+            transition: all 0.3s;
+        }
+
+        .fab-contact:hover {
+            transform: scale(1.08);
+        }
+
+        @media (max-width: 400px) {
+            .pkg-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .pkg-card {
+                padding: 12px;
+            }
+            .pkg-card .pkg-name {
+                font-size: 12px;
+            }
+            .topup-amount-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .topup-amt-btn {
+                font-size: 12px;
+                padding: 8px;
+            }
+            .container {
+                padding: 8px 12px 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <span class="login-emoji">🤖</span>
+            <h2>Boss Store</h2>
+            <p>Đăng nhập bằng Telegram để mua key và nạp tiền</p>
+            <button class="login-btn-tg" id="loginBtn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/>
+                </svg>
+                Đăng nhập
+            </button>
+            <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">🔒 Bảo mật qua Telegram WebApp</div>
+        </div>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup" id="popup"></div>
+
+    <!-- Main App -->
+    <div class="container" id="mainApp" style="display:none;">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="avatar" id="userAvatar">B</div>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Boss</span>
+                    <span class="user-id" id="userId">ID: ---</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="balance-badge" onclick="refreshBalance()">
+                    <span class="icon">🪙</span>
+                    <span id="balanceDisplay">0đ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="buy" onclick="switchTab('buy')">
+                <span class="tab-icon">🎮</span> Mua
+            </button>
+            <button class="tab-btn" data-tab="topup" onclick="switchTab('topup')">
+                <span class="tab-icon">💳</span> Nạp
+            </button>
+            <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
+                <span class="tab-icon">📋</span> Lịch sử
+            </button>
+        </div>
+
+        <!-- Tab: Mua Key -->
+        <div class="tab-content active" id="tabBuy">
+
+            <div class="card">
+                <div class="card-title">🎯 CHỌN ỨNG DỤNG</div>
+                <div class="app-select" id="appSelect">
+                    <button class="app-option active" data-app="proxy" onclick="selectApp('proxy')">🔮 Proxy</button>
+                    <button class="app-option" data-app="tipa" onclick="selectApp('tipa')">📱 Tipa</button>
+                    <button class="app-option" data-app="migul" onclick="selectApp('migul')">⚡ Migul</button>
+                </div>
+
+                <div class="card-title" style="margin-top:16px;">📦 CHỌN GÓI</div>
+                <div class="pkg-grid" id="packageGrid">
+                    <!-- Packages rendered by JS -->
+                </div>
+
+                <div class="card-title" style="margin-top:16px;">🔢 SỐ LƯỢNG</div>
+                <div class="quantity-control">
+                    <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <span class="qty-value" id="qtyDisplay">1</span>
+                    <button class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+
+                <button class="btn-primary" id="buyBtn" onclick="processBuy()">
+                    🛒 Mua ngay
+                </button>
+                <div id="buyStatus" style="margin-top:8px;font-size:12px;color:var(--text-muted);text-align:center;"></div>
+            </div>
+
+            <!-- Giao dịch gần đây -->
+            <div class="card">
+                <div class="card-title">🕐 Giao Dịch Gần Đây</div>
+                <div id="recentTransactions">
+                    <div class="no-data">
+                        <span class="empty-icon">📭</span>
+                        Chưa có giao dịch
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Nạp Tiền -->
+        <div class="tab-content" id="tabTopup">
+
+            <div class="card">
+                <div class="card-title">💳 Nạp Tiền Tự Động 24/7</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+                    ⚡ Giao dịch được xử lý tự động trong vòng 5 giây.
+                    <br>💰 Mọi số tiền nạp đều được <strong class="text-gold">cộng thêm 5%</strong>.
+                </div>
+
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Nhập số tiền (Tối thiểu 2.000đ)</div>
+                <div class="topup-amount-grid" id="amountGrid">
+                    <button class="topup-amt-btn" data-amount="20000">20k</button>
+                    <button class="topup-amt-btn" data-amount="50000">50k</button>
+                    <button class="topup-amt-btn active" data-amount="100000">100k</button>
+                    <button class="topup-amt-btn" data-amount="200000">200k</button>
+                    <button class="topup-amt-btn" data-amount="500000">500k</button>
+                    <button class="topup-amt-btn" data-amount="1000000">1M</button>
+                </div>
+                <div class="topup-input-row">
+                    <input class="topup-input" id="customAmount" type="number" placeholder="Nhập số tiền khác..." min="2000" step="1000">
+                </div>
+                <button class="btn-primary" id="topupBtn" onclick="generateQR()">
+                    🧾 TẠO MÃ QR NẠP TIỀN
+                </button>
+
+                <div id="topupResult" style="display:none;margin-top:16px;">
+                    <div class="qr-wrapper">
+                        <div class="qr-box">
+                            <img id="qrImage" src="" alt="QR Code">
+                        </div>
+                        <div class="bank-info">
+                            <strong>MSB - NGUYỄN VĂN TRUNG</strong><br>
+                            Số TK: <strong>1023122008</strong><br>
+                            Chủ TK: <strong>NGUYỄN VĂN TRUNG</strong>
+                        </div>
+                        <div class="qr-content" onclick="copyContent()">
+                            <span id="qrContentText">NT-USER123</span>
+                            <span>📋</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">⬆ Nội dung tự động theo user, dùng để xác nhận</div>
+                    </div>
+                </div>
+
+                <div class="topup-note">
+                    💡 Sau khi chuyển khoản, nếu tài khoản không cộng tiền, vui lòng gửi ảnh màn hình cho <strong>@vantrung23128</strong> để được cộng số dư và nhận key.
+                </div>
+            </div>
+
+            <!-- Lịch sử nạp -->
+            <div class="card">
+                <div class="card-title">📜 Lịch Sử Nạp Của Bạn</div>
+                <div id="topupHistory">
+                    <div class="no-data">
+                        <span class="empty-icon">📭</span>
+                        Chưa có giao dịch nạp.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Lịch sử -->
+        <div class="tab-content" id="tabHistory">
+            <div class="card">
+                <div class="card-title">📋 Lịch Sử Giao Dịch</div>
+                <div id="allHistory">
+                    <div class="no-data">
+                        <span class="empty-icon">📭</span>
+                        Chưa có giao dịch nào.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Admin -->
+        <a href="https://t.me/vantrung23128" target="_blank" class="fab-contact">💬</a>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" id="bottomNav" style="display:none;">
+        <button class="nav-item active" data-tab="buy" onclick="switchTab('buy')">
+            <span class="nav-icon">🎮</span>
+            Mua
+        </button>
+        <button class="nav-item" data-tab="topup" onclick="switchTab('topup')">
+            <span class="nav-icon">💳</span>
+            Nạp
+        </button>
+        <button class="nav-item" data-tab="history" onclick="switchTab('history')">
+            <span class="nav-icon">📋</span>
+            Lịch sử
+        </button>
+    </div>
+
+    <script>
+        // ============================================================
+        // DATA
+        // ============================================================
+        const PACKAGES = {
+            proxy: [
+                { name: 'Proxy 1 Tháng', price: 50000, days: 30, icon: '📅', desc: '30 ngày' },
+                { name: 'Proxy Vĩnh Viễn', price: 120000, days: null, icon: '♾️', desc: 'Vĩnh viễn', badge: '🔥 HOT' },
+            ],
+            tipa: [
+                { name: 'Tipa 1 Ngày', price: 20000, days: 1, icon: '💝', desc: '1 ngày' },
+                { name: 'Tipa 7 Ngày', price: 50000, days: 7, icon: '💖', desc: '7 ngày' },
+                { name: 'Tipa 30 Ngày', price: 100000, days: 30, icon: '💗', desc: '30 ngày' },
+                { name: 'Tipa 365 Ngày', price: 300000, days: 365, icon: '💎', desc: '365 ngày', badge: '⭐ BEST' },
+            ],
+            migul: [
+                { name: 'Migul Basic 7D', price: 35000, days: 7, icon: '⚡', desc: '7 ngày' },
+                { name: 'Migul Pro 30D', price: 80000, days: 30, icon: '⚡', desc: '30 ngày', badge: '🔥 HOT' },
+                { name: 'Migul Premium 90D', price: 180000, days: 90, icon: '⚡', desc: '90 ngày', badge: '⭐ BEST' },
+            ]
+        };
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let tgUser = null;
+        let isLoggedIn = false;
+        let userBalance = 0;
+        let userKeys = [];
+        let transactions = [];
+        let topupHistory = [];
+        let selectedApp = 'proxy';
+        let selectedPackageIndex = 0;
+        let quantity = 1;
+        let currentQRContent = '';
+        let keyInterval = null;
+        let isFirstLoad = true;
+
+        // ============================================================
+        // TELEGRAM LOGIN - AUTO
+        // ============================================================
+        function initTelegramLogin() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const webApp = window.Telegram.WebApp;
+                    webApp.ready();
+                    webApp.expand();
+
+                    // Lấy user từ initDataUnsafe
+                    const user = webApp.initDataUnsafe?.user;
+
+                    // Nếu có user -> đăng nhập tự động
+                    if (user && user.id) {
+                        tgUser = user;
+                        isLoggedIn = true;
+                        return true;
+                    }
+
+                    // Thử lấy từ initData (fallback)
+                    const initData = webApp.initData;
+                    if (initData) {
+                        const params = new URLSearchParams(initData);
+                        const userStr = params.get('user');
+                        if (userStr) {
+                            try {
+                                const userData = JSON.parse(decodeURIComponent(userStr));
+                                if (userData && userData.id) {
+                                    tgUser = userData;
+                                    isLoggedIn = true;
+                                    return true;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.error('Telegram init error:', e);
+                return false;
+            }
+        }
+
+        // ============================================================
+        // SHOW MAIN APP
+        // ============================================================
+        function showMainApp() {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('bottomNav').style.display = 'flex';
+
+            if (tgUser) {
+                const name = tgUser.first_name || tgUser.username || 'Boss';
+                document.getElementById('userName').textContent = name;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+                const uid = tgUser.id || Math.random().toString(36).slice(2, 8);
+                document.getElementById('userId').textContent = 'ID: ' + uid;
+                currentQRContent = 'NT-' + uid.toString().toUpperCase();
+                document.getElementById('qrContentText').textContent = currentQRContent;
+
+                loadData();
+                renderPackages();
+                updateBalanceDisplay();
+                renderRecentTransactions();
+                renderTopupHistory();
+                renderAllHistory();
+                checkKeyExpiry();
+
+                if (keyInterval) clearInterval(keyInterval);
+                keyInterval = setInterval(checkKeyExpiry, 60000);
+
+                // Cập nhật UI mua
+                updateBuyUI();
+            }
+        }
+
+        // ============================================================
+        // STORAGE
+        // ============================================================
+        function getStorageKey() {
+            return 'bossstore_' + (tgUser?.id || 'guest');
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(getStorageKey());
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    userBalance = data.balance || 0;
+                    userKeys = data.keys || [];
+                    transactions = data.transactions || [];
+                    topupHistory = data.topupHistory || [];
+                }
+            } catch (e) {
+                userBalance = 0;
+                userKeys = [];
+                transactions = [];
+                topupHistory = [];
+            }
+        }
+
+        function saveData() {
+            try {
+                const data = {
+                    balance: userBalance,
+                    keys: userKeys,
+                    transactions: transactions,
+                    topupHistory: topupHistory
+                };
+                localStorage.setItem(getStorageKey(), JSON.stringify(data));
+            } catch (e) {}
+        }
+
+        // ============================================================
+        // BALANCE
+        // ============================================================
+        function updateBalanceDisplay() {
+            const formatted = userBalance.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('balanceDisplay').textContent = formatted;
+        }
+
+        function refreshBalance() {
+            showPopup('💰 Số dư: ' + userBalance.toLocaleString('vi-VN') + 'đ', 'success');
+        }
+
+        // ============================================================
+        // PACKAGE RENDER
+        // ============================================================
+        function renderPackages() {
+            const container = document.getElementById('packageGrid');
+            const pkgs = PACKAGES[selectedApp] || [];
+
+            if (pkgs.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px 0;">📭 Danh sách trống</div>';
+                return;
+            }
+
+            let html = '';
+            pkgs.forEach((p, index) => {
+                const isSelected = index === selectedPackageIndex ? 'selected' : '';
+                const badgeHtml = p.badge ?
+                    `<span class="pkg-badge ${p.badge.includes('HOT') ? 'hot' : p.badge.includes('BEST') ? 'best' : ''}">${p.badge}</span>` :
+                    '';
+                const priceStr = p.price.toLocaleString('vi-VN') + 'đ';
+                html += `
+                    <div class="pkg-card ${isSelected}" onclick="selectPackage(${index})">
+                        ${badgeHtml}
+                        <span class="pkg-icon">${p.icon}</span>
+                        <div class="pkg-name">${p.name}</div>
+                        <div class="pkg-desc">${p.desc}</div>
+                        <div class="pkg-price">${priceStr}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updateBuyUI();
+        }
+
+        function selectPackage(index) {
+            const pkgs = PACKAGES[selectedApp] || [];
+            if (index < 0 || index >= pkgs.length) return;
+            selectedPackageIndex = index;
+            renderPackages();
+        }
+
+        function selectApp(app) {
+            selectedApp = app;
+            selectedPackageIndex = 0;
+            document.querySelectorAll('.app-option').forEach(el => {
+                el.classList.toggle('active', el.dataset.app === app);
+            });
+            renderPackages();
+        }
+
+        function changeQty(delta) {
+            quantity = Math.max(1, Math.min(99, quantity + delta));
+            document.getElementById('qtyDisplay').textContent = quantity;
+            updateBuyUI();
+        }
+
+        function updateBuyUI() {
+            const pkgs = PACKAGES[selectedApp] || [];
+            const pkg = pkgs[selectedPackageIndex];
+            const btn = document.getElementById('buyBtn');
+            const status = document.getElementById('buyStatus');
+
+            if (!pkg) {
+                btn.disabled = true;
+                btn.innerHTML = '⚠️ CHƯA CHỌN GÓI';
+                status.textContent = '';
+                return;
+            }
+
+            const total = pkg.price * quantity;
+            btn.disabled = false;
+            btn.innerHTML = `🛒 Mua ngay - ${total.toLocaleString('vi-VN')}đ`;
+            status.textContent = `💰 Số dư: ${userBalance.toLocaleString('vi-VN')}đ | ${quantity} key`;
+        }
+
+        // ============================================================
+        // BUY
+        // ============================================================
+        function processBuy() {
+            if (!isLoggedIn || !tgUser) {
+                showPopup('⚠️ Vui lòng đăng nhập!', 'error');
+                return;
+            }
+
+            const pkgs = PACKAGES[selectedApp] || [];
+            const pkg = pkgs[selectedPackageIndex];
+            if (!pkg) {
+                showPopup('⚠️ Vui lòng chọn gói!', 'error');
+                return;
+            }
+
+            const total = pkg.price * quantity;
+            if (userBalance < total) {
+                showPopup('❌ Số dư không đủ! Vui lòng nạp thêm.', 'error');
+                return;
+            }
+
+            userBalance -= total;
+            const expiry = pkg.days ? Date.now() + pkg.days * 86400000 : null;
+
+            let keyCodes = [];
+            for (let i = 0; i < quantity; i++) {
+                const keyCode = generateKeyCode();
+                keyCodes.push(keyCode);
+                userKeys.push({
+                    name: pkg.name + (quantity > 1 ? ' #' + (i + 1) : ''),
+                    keyCode: keyCode,
+                    expiry: expiry,
+                    isActive: true,
+                    purchasedAt: Date.now()
+                });
+            }
+
+            transactions.unshift({
+                type: 'buy',
+                name: pkg.name,
+                qty: quantity,
+                amount: total,
+                time: Date.now(),
+                keys: keyCodes
+            });
+
+            saveData();
+            updateBalanceDisplay();
+            renderRecentTransactions();
+            renderAllHistory();
+            updateBuyUI();
+
+            showPopup(`✅ Đã mua ${quantity} key ${pkg.name}!`, 'success');
+        }
+
+        function generateKeyCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 16; i++) {
+                if (i > 0 && i % 4 === 0) code += '-';
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // ============================================================
+        // KEY EXPIRY
+        // ============================================================
+        function checkKeyExpiry() {
+            const now = Date.now();
+            let changed = false;
+            userKeys.forEach(k => {
+                if (k.expiry && k.isActive && now > k.expiry) {
+                    k.isActive = false;
+                    changed = true;
+                }
+            });
+            if (changed) {
+                saveData();
+                renderRecentTransactions();
+                renderAllHistory();
+            }
+        }
+
+        // ============================================================
+        // TOPUP / QR
+        // ============================================================
+        function generateQR() {
+            const amount = parseInt(document.getElementById('customAmount').value) || 100000;
+            if (amount < 2000) {
+                showPopup('💰 Số tiền tối thiểu 2.000đ', 'error');
+                return;
+            }
+
+            const content = currentQRContent || 'NT-' + Date.now().toString(36).toUpperCase();
+            const qrUrl =
+                `https://api.vietqr.io/image/970415-1023122008-YL3iKID.jpg?amount=${amount}&addInfo=${encodeURIComponent(content)}`;
+
+            document.getElementById('qrImage').src = qrUrl;
+            document.getElementById('qrContentText').textContent = content;
+            document.getElementById('topupResult').style.display = 'block';
+            showPopup(`✅ QR đã tạo với số tiền ${amount.toLocaleString('vi-VN')}đ`, 'success');
+        }
+
+        function copyContent() {
+            const txt = document.getElementById('qrContentText').textContent;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(txt).then(() => showPopup('📋 Đã copy!', 'success'));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = txt;
+                ta.style.cssText = 'position:fixed;opacity:0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy');
+                    showPopup('📋 Đã copy!', 'success'); } catch (e) {}
+                document.body.removeChild(ta);
+            }
+        }
+
+        // ============================================================
+        // RENDER HISTORIES
+        // ============================================================
+        function renderRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            const recent = transactions.slice(0, 5);
+            if (recent.length === 0) {
+                container.innerHTML =
+                    `<div class="no-data"><span class="empty-icon">📭</span>Chưa có giao dịch</div>`;
+                return;
+            }
+            let html = '';
+            recent.forEach(t => {
+                const timeAgo = getTimeAgo(t.time);
+                html += `
+                    <div class="history-item">
+                        <div class="history-left">
+                            <div class="history-icon">🎮</div>
+                            <div class="history-info">
+                                <div class="h-name">${t.name} ${t.qty > 1 ? '×'+t.qty : ''}</div>
+                                <div class="h-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                        <div class="history-amount negative">-${t.amount.toLocaleString('vi-VN')}đ</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderTopupHistory() {
+            const container = document.getElementById('topupHistory');
+            if (topupHistory.length === 0) {
+                container.innerHTML =
+                    `<div class="no-data"><span class="empty-icon">📭</span>Chưa có giao dịch nạp.</div>`;
+                return;
+            }
+            let html = '';
+            topupHistory.forEach(t => {
+                const timeAgo = getTimeAgo(t.time);
+                html += `
+                    <div class="history-item">
+                        <div class="history-left">
+                            <div class="history-icon">💰</div>
+                            <div class="history-info">
+                                <div class="h-name">Nạp tiền</div>
+                                <div class="h-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                        <div class="history-amount">+${t.amount.toLocaleString('vi-VN')}đ</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderAllHistory() {
+            const container = document.getElementById('allHistory');
+            const all = [...transactions, ...topupHistory.map(t => ({ ...t, type: 'topup' }))];
+            all.sort((a, b) => b.time - a.time);
+
+            if (all.length === 0) {
+                container.innerHTML =
+                    `<div class="no-data"><span class="empty-icon">📭</span>Chưa có giao dịch nào.</div>`;
+                return;
+            }
+            let html = '';
+            all.forEach(t => {
+                const timeAgo = getTimeAgo(t.time);
+                const isBuy = t.type === 'buy';
+                const sign = isBuy ? '-' : '+';
+                const cls = isBuy ? 'negative' : '';
+                const name = isBuy ? `${t.name} ${t.qty > 1 ? '×'+t.qty : ''}` : 'Nạp tiền';
+                html += `
+                    <div class="history-item">
+                        <div class="history-left">
+                            <div class="history-icon">${isBuy ? '🎮' : '💰'}</div>
+                            <div class="history-info">
+                                <div class="h-name">${name}</div>
+                                <div class="h-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                        <div class="history-amount ${cls}">${sign}${t.amount.toLocaleString('vi-VN')}đ</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function getTimeAgo(timestamp) {
+            const diff = Date.now() - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            if (minutes < 1) return 'Vài giây trước';
+            if (minutes < 60) return minutes + ' phút trước';
+            if (hours < 24) return hours + ' giờ trước';
+            return days + ' ngày trước';
+        }
+
+        // ============================================================
+        // TAB SWITCHING
+        // ============================================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const tabMap = { buy: 'Buy', topup: 'Topup', history: 'History' };
+            document.getElementById('tab' + tabMap[tab])?.classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+            document.querySelector(`.nav-item[data-tab="${tab}"]`)?.classList.add('active');
+
+            if (tab === 'buy') {
+                renderPackages();
+                updateBuyUI();
+            }
+            if (tab === 'topup') {
+                renderTopupHistory();
+            }
+            if (tab === 'history') {
+                renderAllHistory();
+            }
+        }
+
+        // ============================================================
+        // POPUP
+        // ============================================================
+        function showPopup(text, type = 'info') {
+            const p = document.getElementById('popup');
+            p.textContent = text;
+            p.className = 'popup show ' + type;
+            clearTimeout(window._pt);
+            window._pt = setTimeout(() => p.classList.remove('show'), 3500);
+        }
+
+        // ============================================================
+        // ADMIN FUNCTIONS
+        // ============================================================
+        window.addBalance = function(amount) {
+            const bonus = Math.floor(amount * 0.05);
+            const total = amount + bonus;
+            userBalance += total;
+            topupHistory.unshift({ amount: total, time: Date.now() });
+            saveData();
+            updateBalanceDisplay();
+            renderTopupHistory();
+            renderAllHistory();
+            updateBuyUI();
+            showPopup(`💰 Đã cộng ${total.toLocaleString('vi-VN')}đ (bao gồm 5% thưởng)`, 'success');
+        };
+
+        window.addKey = function(name, keyCode, expiryTimestamp = null) {
+            const newKey = {
+                name: name || 'Gói không tên',
+                keyCode: keyCode || generateKeyCode(),
+                expiry: expiryTimestamp,
+                isActive: true,
+                purchasedAt: Date.now()
+            };
+            userKeys.push(newKey);
+            saveData();
+            showPopup('✅ Đã thêm key: ' + newKey.name, 'success');
+        };
+
+        // ============================================================
+        // AMOUNT BUTTONS
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Amount buttons
+            document.querySelectorAll('.topup-amt-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.topup-amt-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('customAmount').value = this.dataset.amount;
+                });
+            });
+
+            // Set default amount
+            document.getElementById('customAmount').value = 100000;
+
+            // === AUTO LOGIN ===
+            const hasTelegram = initTelegramLogin();
+
+            if (hasTelegram && isLoggedIn) {
+                // Đăng nhập tự động thành công
+                showMainApp();
+                showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + '!', 'success');
+            } else {
+                // Hiển thị login, vẫn cho đăng nhập thủ công
+                document.getElementById('loginOverlay').classList.remove('hidden');
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+
+                // Nếu đang trong Telegram nhưng chưa login, thử lại
+                if (window.Telegram && window.Telegram.WebApp) {
+                    setTimeout(() => {
+                        const webApp = window.Telegram.WebApp;
+                        const user = webApp.initDataUnsafe?.user;
+                        if (user && user.id) {
+                            tgUser = user;
+                            isLoggedIn = true;
+                            showMainApp();
+                            showPopup('🌸 Chào ' + (tgUser.first_name || 'Boss') + '!', 'success');
+                        }
+                    }, 500);
+                }
+            }
+
+            // Login button handler (fallback)
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                const btn = this;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="login-loading"></span> Đang đăng nhập...';
+
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const webApp = window.Telegram.WebApp;
+                    webApp.ready();
+                    webApp.expand();
+                    const user = webApp.initDataUnsafe?.user;
+                    if (user && user.id) {
+                        tgUser = user;
+                        isLoggedIn = true;
+                        showMainApp();
+                        showPopup('🌸 Đăng nhập thành công!', 'success');
+                    } else {
+                        showPopup('💔 Không lấy được user. Mở lại từ Telegram.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML =
+                            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/></svg> Đăng nhập';
+                    }
+                } else {
+                    // Fallback: mở Telegram
+                    window.open('https://t.me/vantrung23128', '_blank');
+                    showPopup('📱 Mở ứng dụng Telegram', 'info');
+                    btn.disabled = false;
+                    btn.innerHTML =
+                        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 4.5L3 12l6 3 9-6-6 9 3 6 6.5-18z"/></svg> Đăng nhập';
+                }
+            });
+        });
+
+        console.log('🛒 Boss Store loaded!');
+        console.log('📌 Admin: addBalance(amount), addKey(name, code, expiry)');
+        console.log('📌 Demo: addBalance(100000)');
+    </script>
+
+</body>
+</html>
